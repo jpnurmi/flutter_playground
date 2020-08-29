@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:battery_linux/battery_linux.dart';
+import 'package:connectivity_linux/connectivity_linux.dart';
 
 void main() => runApp(PlaygroundApp());
 
@@ -13,15 +14,25 @@ class PlaygroundApp extends StatelessWidget {
   }
 }
 
+class PlaygroundIndicator extends StatelessWidget {
+  final bool busy;
+  PlaygroundIndicator(this.busy, {Key key}) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    return busy ? CircularProgressIndicator() : SizedBox.shrink();
+  }
+}
+
 class PlaygroundPage extends StatefulWidget {
   PlaygroundPage({Key key}) : super(key: key);
 
   @override
-  _PlaygroundPageState createState() => _PlaygroundPageState();
+  PlaygroundPageState createState() => PlaygroundPageState();
 }
 
-class _PlaygroundPageState extends State<PlaygroundPage> {
-  final Battery _battery = Battery();
+class PlaygroundPageState extends State<PlaygroundPage> {
+  final _battery = Battery();
+  final _connectivity = Connectivity();
 
   @override
   Widget build(BuildContext context) {
@@ -29,22 +40,111 @@ class _PlaygroundPageState extends State<PlaygroundPage> {
       appBar: AppBar(
         title: Text('Flutter Playground'),
       ),
-      body: Center(
-        child: FutureBuilder(
-          future: _battery.batteryLevel(),
-          builder: (context, AsyncSnapshot<int> snapshot) {
-            final level = snapshot.hasData ? snapshot.data : null;
-            return StreamBuilder(
-              stream: _battery.onBatteryStateChanged(),
-              builder: (context, AsyncSnapshot<BatteryState> snapshot) {
-                final state = snapshot.hasData ? snapshot.data : null;
-                return Text(
-                  'Battery: $level% (${state.toString().split('.').last})',
-                  style: Theme.of(context).textTheme.headline5,
-                );
-              },
-            );
-          },
+      body: Scrollbar(
+        child: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Battery',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            ),
+            Card(
+              child: FutureBuilder(
+                future: _battery.batteryLevel(),
+                builder: (context, AsyncSnapshot<int> snapshot) {
+                  final level = snapshot.hasData ? snapshot.data : null;
+                  return ListTile(
+                    title: Text('${level ?? '-'}%'),
+                    subtitle: Text('Level'),
+                    trailing: PlaygroundIndicator(!snapshot.hasData),
+                  );
+                },
+              ),
+            ),
+            Card(
+              child: StreamBuilder(
+                stream: _battery.onBatteryStateChanged(),
+                builder: (context, AsyncSnapshot<BatteryState> snapshot) {
+                  final state = snapshot.hasData ? snapshot.data : null;
+                  return ListTile(
+                    title: Text(state?.toString()?.split('.')?.last ?? '-'),
+                    subtitle: Text('State'),
+                    trailing: PlaygroundIndicator(!snapshot.hasData),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Connectivity',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            ),
+            Card(
+              child: FutureBuilder(
+                future: _connectivity.checkConnectivity(),
+                builder: (context, AsyncSnapshot<ConnectivityResult> snapshot) {
+                  return StreamBuilder(
+                    stream: _connectivity.onConnectivityChanged,
+                    initialData: snapshot.hasData ? snapshot.data : null,
+                    builder:
+                        (context, AsyncSnapshot<ConnectivityResult> snapshot) {
+                      final connectivity =
+                          snapshot.hasData ? snapshot.data : null;
+                      return ListTile(
+                        title: Text(
+                            connectivity?.toString()?.split('.')?.last ?? '-'),
+                        subtitle: Text('Result'),
+                        trailing: PlaygroundIndicator(!snapshot.hasData),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            Card(
+              child: FutureBuilder(
+                future: _connectivity.getWifiName(),
+                builder: (context, AsyncSnapshot<String> snapshot) {
+                  final name = snapshot.hasData ? snapshot.data : null;
+                  return ListTile(
+                    title: Text(name ?? '-'),
+                    subtitle: Text('WiFi'),
+                    trailing: PlaygroundIndicator(!snapshot.hasData),
+                  );
+                },
+              ),
+            ),
+            Card(
+              child: FutureBuilder(
+                future: _connectivity.getWifiIP(),
+                builder: (context, AsyncSnapshot<String> snapshot) {
+                  final ip = snapshot.hasData ? snapshot.data : null;
+                  return ListTile(
+                    title: Text(ip ?? '-'),
+                    subtitle: Text('IP'),
+                    trailing: PlaygroundIndicator(!snapshot.hasData),
+                  );
+                },
+              ),
+            ),
+            Card(
+              child: FutureBuilder(
+                future: _connectivity.getWifiBSSID(),
+                builder: (context, AsyncSnapshot<String> snapshot) {
+                  final bssid = snapshot.hasData ? snapshot.data : null;
+                  return ListTile(
+                    title: Text(bssid?.replaceRange(9, null, '...') ?? '-'),
+                    subtitle: Text('BSSID'),
+                    trailing: PlaygroundIndicator(!snapshot.hasData),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(

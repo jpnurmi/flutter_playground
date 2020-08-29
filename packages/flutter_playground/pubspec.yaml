@@ -9,6 +9,8 @@ environment:
 dependencies:
   battery_linux:
     path: ../battery_linux
+  connectivity_linux:
+    path: ../connectivity_linux
   flutter:
     sdk: flutter
 
