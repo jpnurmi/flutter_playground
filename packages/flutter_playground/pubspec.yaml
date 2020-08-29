@@ -11,6 +11,8 @@ dependencies:
     path: ../battery_linux
   connectivity_linux:
     path: ../connectivity_linux
+  device_info_linux:
+    path: ../device_info_linux
   flutter:
     sdk: flutter
 
