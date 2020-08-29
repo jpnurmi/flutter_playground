@@ -3,6 +3,7 @@ import 'package:battery_linux/battery_linux.dart';
 import 'package:connectivity_linux/connectivity_linux.dart';
 import 'package:device_info_linux/device_info_linux.dart';
 import 'package:package_info_linux/package_info_linux.dart';
+import 'package:share_linux/share_linux.dart';
 
 void main() => runApp(PlaygroundApp());
 
@@ -12,6 +13,7 @@ class PlaygroundApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Playground',
       home: PlaygroundPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -42,6 +44,9 @@ class PlaygroundPageState extends State<PlaygroundPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Flutter Playground'),
+        actions: [
+          IconButton(icon: Icon(Icons.share), onPressed: () => _share(context))
+        ],
       ),
       body: Scrollbar(
         child: ListView(
@@ -277,4 +282,54 @@ class PlaygroundPageState extends State<PlaygroundPage> {
       ),
     );
   }
+}
+
+void _share(BuildContext context) {
+  final formKey = GlobalKey<FormState>();
+  final subjectController = TextEditingController(text: 'Flutter Playground');
+  final contentController = TextEditingController(text: '...');
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Share'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                autofocus: true,
+                controller: subjectController,
+                decoration: InputDecoration(labelText: 'Subject'),
+                validator: (v) => v.trim().isEmpty ? '*required' : null,
+              ),
+              TextFormField(
+                controller: contentController,
+                decoration: InputDecoration(labelText: 'Content'),
+                validator: (v) => v.toString().isEmpty ? '*required' : null,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          FlatButton(
+            child: Text('CANCEL'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          FlatButton(
+            child: Text('SHARE'),
+            onPressed: () {
+              if (formKey.currentState.validate()) {
+                final content = contentController.text.trim();
+                final subject = subjectController.text.trim();
+                Share.share(content, subject: subject);
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
