@@ -1,0 +1,24 @@
+name: 'GIO'
+description: 'GIO FFI bindings'
+output: 'lib/src/gio.dart'
+headers:
+  entry-points:
+    - '/usr/include/glib-2.0/gio/gio.h'
+comments: false
+functions:
+  include:
+    - 'g_application_get_application_id'
+    - 'g_application_get_default'
+structs:
+  include:
+    - 'GApplication'
+unnamed-enums:
+  exclude:
+    - '.*'
+enums:
+  exclude:
+    - '.*'
+macros:
+  exclude:
+    - '.*'
+compiler-opts: '-I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include'
