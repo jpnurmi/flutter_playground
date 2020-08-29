@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:battery_linux/battery_linux.dart';
 import 'package:connectivity_linux/connectivity_linux.dart';
 import 'package:device_info_linux/device_info_linux.dart';
+import 'package:package_info_linux/package_info_linux.dart';
 
 void main() => runApp(PlaygroundApp());
 
@@ -34,6 +35,7 @@ class PlaygroundPage extends StatefulWidget {
 class PlaygroundPageState extends State<PlaygroundPage> {
   final _battery = Battery();
   final _connectivity = Connectivity();
+  final _packageInfo = PackageInfo();
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +235,37 @@ class PlaygroundPageState extends State<PlaygroundPage> {
                     trailing: PlaygroundIndicator(!snapshot.hasData),
                   );
                 },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Package Info',
+                style: Theme.of(context).textTheme.headline6,
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text(_packageInfo.appName),
+                subtitle: Text('App Name'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text('TODO'),
+                subtitle: Text('Build Number'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text(_packageInfo.packageName),
+                subtitle: Text('Package Name'),
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text('TODO'),
+                subtitle: Text('Version'),
               ),
             ),
           ],
